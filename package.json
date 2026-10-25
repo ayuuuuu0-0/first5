@@ -1,0 +1,15 @@
+{
+  "name": "first5",
+  "version": "1.0.0",
+  "description": "Bust developer task dread. Scaffolds the first 5 minutes of any task, leaves one line to finish, and opens your editor.",
+  "type": "module",
+  "bin": {
+    "first5": "./bin/first5.js"
+  },
+  "scripts": {
+    "start": "node ./bin/first5.js"
+  },
+  "keywords": ["developer-tools", "ollama", "local-ai", "productivity", "hacktoberfest"],
+  "author": "",
+  "license": "MIT"
+}
