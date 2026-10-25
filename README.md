@@ -52,6 +52,9 @@ first5 ENG-892 -b
 # GitHub issue
 first5 #42
 
+# From Postman collection / request schema
+first5 --from postman "reset-password"
+
 # From Slack thread
 first5 --from slack "auth-incident"
 ```
@@ -78,7 +81,7 @@ Usage:
   first5 hook                          # Print shell idle reminder hook
 
 Options:
-  --from <app> <id>    Pull task context from work app (jira, linear, github, slack)
+  --from <app> <id>    Pull task context from work app (postman, jira, linear, github, slack)
   -b, --branch         Auto-create and checkout a clean git branch (e.g. feat/task-slug)
   -p, --preset <type>  Enforce task archetype: test, doc, component, api
   -t, --timer          Start a 5-minute focus countdown

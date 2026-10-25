@@ -115,6 +115,12 @@ export async function getRecentWorkRadar() {
       title: 'Triage Redis connection pool timeouts during spike',
       task: 'Triage Redis connection pool timeouts reported in #backend-alerts'
     });
+    radar.push({
+      source: 'Postman',
+      tag: 'POST /v1/auth',
+      title: 'Implement POST /api/v1/auth/reset-password endpoint schema',
+      task: 'Implement API endpoint POST /api/v1/auth/reset-password from Postman collection'
+    });
   }
 
   return radar;

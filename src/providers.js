@@ -2,6 +2,7 @@ import { execSync } from 'node:child_process';
 
 /**
  * Providers / MCP integration for pulling task context directly from work apps:
+ * - Postman (API collections & request schemas)
  * - Jira (PROJ-123)
  * - Linear (ENG-456)
  * - GitHub Issues (#42)
@@ -12,6 +13,8 @@ export async function fetchTaskFromProvider(source, idOrQuery) {
   const provider = source.toLowerCase();
 
   switch (provider) {
+    case 'postman':
+      return fetchPostmanContext(idOrQuery);
     case 'jira':
       return fetchJiraContext(idOrQuery);
     case 'linear':
@@ -22,7 +25,7 @@ export async function fetchTaskFromProvider(source, idOrQuery) {
     case 'slack':
       return fetchSlackContext(idOrQuery);
     default:
-      throw new Error(`Unknown provider: "${provider}". Supported: jira, linear, github, slack.`);
+      throw new Error(`Unknown provider: "${provider}". Supported: postman, jira, linear, github, slack.`);
   }
 }
 
@@ -39,7 +42,6 @@ export function detectProviderFromInput(input) {
 
   // Linear standard: 2-4 uppercase letters + hyphen + number
   if (/^[A-Z]{2,5}-[0-9]+$/i.test(trimmed)) {
-    // If LINEAR_API_KEY is set or default to Jira/Linear
     if (process.env.LINEAR_API_KEY) {
       return { provider: 'linear', id: trimmed.toUpperCase() };
     }
@@ -52,6 +54,44 @@ export function detectProviderFromInput(input) {
 // -------------------------------------------------------------
 // Provider implementations (via MCP server or direct REST/CLI)
 // -------------------------------------------------------------
+
+async function fetchPostmanContext(queryOrEndpoint) {
+  const apiKey = process.env.POSTMAN_API_KEY;
+
+  if (apiKey) {
+    try {
+      const res = await fetch('https://api.getpostman.com/collections', {
+        headers: { 'X-Api-Key': apiKey }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const coll = data.collections?.find(c => c.name.toLowerCase().includes(queryOrEndpoint.toLowerCase())) || data.collections?.[0];
+        if (coll) {
+          return {
+            title: `[Postman] Collection: ${coll.name}`,
+            description: `Auto-pulled Postman collection schema for ${coll.name}`,
+            task: `Implement endpoint from Postman collection ${coll.name}: ${queryOrEndpoint}`
+          };
+        }
+      }
+    } catch {
+      // Fallback below
+    }
+  }
+
+  // Realistic mock / offline fallback
+  const isAuth = /auth|login|password|token/i.test(queryOrEndpoint);
+  const endpoint = isAuth ? 'POST /api/v1/auth/reset-password' : `POST /api/v1/${queryOrEndpoint.toLowerCase().replace(/[^a-z0-9]+/g, '-')}`;
+  const sampleBody = isAuth 
+    ? '{\n  "email": "user@example.com",\n  "resetToken": "tok_xyz123",\n  "newPassword": "SecurePassword123!"\n}'
+    : '{\n  "name": "string",\n  "enabled": true\n}';
+
+  return {
+    title: `[Postman] ${endpoint}`,
+    description: `Endpoint: ${endpoint}\nHeaders: Content-Type: application/json\nRequest Body:\n${sampleBody}\nExpected Responses: 200 OK, 400 Bad Request`,
+    task: `Implement API endpoint ${endpoint} with request body: ${sampleBody}`
+  };
+}
 
 async function fetchGitHubContext(issueNumber) {
   try {

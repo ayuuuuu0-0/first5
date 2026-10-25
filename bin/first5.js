@@ -166,13 +166,14 @@ Usage:
 Zero-Effort Resume (Active Radar):
   Just type 'first5' with no arguments! It scans:
   - Local Git (uncommitted changes & recent commits)
+  - Postman (recent API collections & requests)
   - Jira / Linear (your active in-progress tickets)
   - GitHub (your open PRs)
   - Slack (unresolved alerts/threads)
   And lets you navigate with ↑/↓ arrows and Enter.
 
 Options:
-  --from <app> <id>    Pull task context from work app (jira, linear, github, slack)
+  --from <app> <id>    Pull task context from work app (postman, jira, linear, github, slack)
   -b, --branch         Auto-create and checkout a clean git branch (e.g. feat/task-slug)
   -p, --preset <type>  Enforce task archetype: test, doc, component, api
   -t, --timer          Start a 5-minute focus countdown to build initial momentum
@@ -185,6 +186,7 @@ Environment Variables:
   OLLAMA_HOST          Ollama URL (default: http://localhost:11434)
   OLLAMA_MODEL         Model name (default: qwen2.5-coder:7b)
   OPENAI_API_KEY       Optional fallback if Ollama is not local
+  POSTMAN_API_KEY      Postman API Key (or use Postman MCP)
   LINEAR_API_KEY       Linear Personal API Key
   JIRA_HOST/EMAIL/TOKEN Jira Cloud credentials
   EDITOR               Editor command (default: code)
