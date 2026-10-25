@@ -46,6 +46,21 @@ export function openInEditor(filePath, line = 1, cwd = process.cwd()) {
       stdio: 'ignore',
       shell: process.platform === 'win32'
     });
+
+    // Handle error event so unhandled 'error' (e.g. ENOENT if 'code' isn't in PATH) never crashes the process
+    child.on('error', () => {
+      if (process.platform === 'darwin') {
+        try {
+          const fallback = spawn('open', ['-a', 'Visual Studio Code', fullPath], {
+            detached: true,
+            stdio: 'ignore'
+          });
+          fallback.on('error', () => {});
+          fallback.unref();
+        } catch {}
+      }
+    });
+
     child.unref();
     return true;
   } catch {
@@ -57,6 +72,5 @@ function detectEditor() {
   if (process.env.EDITOR) return process.env.EDITOR;
   if (process.env.VISUAL) return process.env.VISUAL;
 
-  // Default priority: VS Code -> Cursor -> Vim
   return 'code';
 }
